@@ -46,6 +46,17 @@ body > * {
   z-index: 1;
 }
 
+/* Center the main header and subtitle as a unit */
+.site-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center children horizontally */
+  justify-content: center;
+  text-align: center;
+  padding: 20px 12px; /* comfortable vertical spacing */
+  margin-bottom: 6px; /* small gap before controls */
+}
+
 /* Friendlier page title */
 h1 {
   text-align: center;
@@ -57,6 +68,12 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Slightly reduce top margin of h1 when inside .site-header for tighter centering */
+.site-header h1 {
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 /* emoji logo sizing and subtle lift */
