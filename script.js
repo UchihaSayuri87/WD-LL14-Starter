@@ -61,7 +61,7 @@ function getIngredients(detail) {
 
 // NEW: Mock detailed meal data keyed by id for offline/fallback use
 const MOCK_DETAILS = {
-  52771: {
+  "52771": {
     idMeal: "52771",
     strMeal: "Spicy Arrabiata Penne",
     strCategory: "Vegetarian",
@@ -86,7 +86,7 @@ const MOCK_DETAILS = {
     strMeasure7: "6 leaves",
   },
 
-  52772: {
+  "52772": {
     idMeal: "52772",
     strMeal: "Teriyaki Chicken Casserole",
     strCategory: "Chicken",
@@ -216,12 +216,12 @@ function renderMeals(meals) {
             else badgeEl.textContent = "";
           } else {
             // fallback to mock if available
-            const mock = MOCK_DETAILS[id];
+            const mock = MOCK_DETAILS[String(id)];
             if (mock && mock.strCategory)
               badgeEl.textContent = mock.strCategory;
           }
         } catch (err) {
-          const mock = MOCK_DETAILS[id];
+          const mock = MOCK_DETAILS[String(id)];
           if (mock && mock.strCategory) badgeEl.textContent = mock.strCategory;
         }
       })(meal.idMeal, badge);
@@ -239,7 +239,7 @@ function renderMeals(meals) {
             !detailData.meals ||
             detailData.meals.length === 0
           ) {
-            const mock = MOCK_DETAILS[meal.idMeal];
+            const mock = MOCK_DETAILS[String(meal.idMeal)];
             if (mock) {
               console.warn(
                 `API returned no detail; using mock detail for id ${meal.idMeal}.`
@@ -259,7 +259,7 @@ function renderMeals(meals) {
           console.log("Detailed meal info:", detailData.meals[0]);
           renderDetail(detailData.meals[0]);
         } catch (err) {
-          const mock = MOCK_DETAILS[meal.idMeal];
+          const mock = MOCK_DETAILS[String(meal.idMeal)];
           if (mock) {
             console.error(
               "Error fetching meal details; using mock data. Error:",
@@ -349,18 +349,20 @@ async function fetchAndRender(area, category) {
 }
 
 // Replace separate change handlers with calls to fetchAndRender
-document.getElementById("area-select").addEventListener("change", function () {
-  const area = this.value;
-  const category = document.getElementById("category-select").value;
-  // do not clear category — allow combined filtering
-  fetchAndRender(area, category);
-});
-
-document
-  .getElementById("category-select")
-  .addEventListener("change", function () {
-    const category = this.value;
-    const area = document.getElementById("area-select").value;
-    // do not clear area — allow combined filtering
+const areaSelectEl = document.getElementById("area-select");
+if (areaSelectEl) {
+  areaSelectEl.addEventListener("change", function () {
+    const area = this.value;
+    const category = document.getElementById("category-select")?.value || "";
     fetchAndRender(area, category);
   });
+}
+
+const categorySelectEl = document.getElementById("category-select");
+if (categorySelectEl) {
+  categorySelectEl.addEventListener("change", function () {
+    const category = this.value;
+    const area = document.getElementById("area-select")?.value || "";
+    fetchAndRender(area, category);
+  });
+}

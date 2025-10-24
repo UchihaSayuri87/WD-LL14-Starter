@@ -215,6 +215,16 @@ h1 {
   color: #444;
 }
 
+/* Detail image styling for consistency and centering */
+.detail-img {
+  display: block;
+  max-width: 420px;
+  width: 100%;
+  height: auto;
+  margin: 10px auto 16px auto;
+  border-radius: 8px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .controls {
@@ -329,6 +339,7 @@ h1 {
   p,
   li {
     color: #000 !important;
+    print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
 }
