@@ -1,41 +1,255 @@
 // Populate the area dropdown when the page loads
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", async function () {
+  // Get the select element
   const areaSelect = document.getElementById("area-select");
   areaSelect.innerHTML = '<option value="">Select Area</option>';
 
-  fetch("https://www.themealdb.com/api/json/v1/1/list.php?a=list")
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.meals) {
-        data.meals.forEach((areaObj) => {
-          const option = document.createElement("option");
-          option.value = areaObj.strArea;
-          option.textContent = areaObj.strArea;
-          areaSelect.appendChild(option);
-        });
-      }
-    });
+  try {
+    // Fetch list of areas from the API using async/await
+    const response = await fetch(
+      "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
+    );
+    const data = await response.json();
+
+    // If we have areas, add them to the dropdown
+    if (data.meals) {
+      data.meals.forEach((areaObj) => {
+        const option = document.createElement("option");
+        option.value = areaObj.strArea;
+        option.textContent = areaObj.strArea;
+        areaSelect.appendChild(option);
+      });
+    }
+  } catch (error) {
+    // Simple error logging for beginners
+    console.error("Error fetching areas:", error);
+  }
+
+  // NEW: Fetch categories and populate category-select
+  try {
+    const catSelect = document.getElementById("category-select");
+    const catResp = await fetch(
+      "https://www.themealdb.com/api/json/v1/1/list.php?c=list"
+    );
+    const catData = await catResp.json();
+    if (catData.meals) {
+      catData.meals.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c.strCategory;
+        opt.textContent = c.strCategory;
+        catSelect.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+  }
 });
 
+// Helper: build an array of "measure ingredient" strings from a detail object
+function getIngredients(detail) {
+  const items = [];
+  for (let i = 1; i <= 20; i++) {
+    const ing = detail[`strIngredient${i}`];
+    const measure = detail[`strMeasure${i}`];
+    if (ing && ing.trim()) {
+      // Use template literal to combine measure and ingredient
+      items.push(`${measure ? measure.trim() : ""} ${ing.trim()}`.trim());
+    }
+  }
+  return items;
+}
+
+// NEW: Mock detailed meal data keyed by id for offline/fallback use
+const MOCK_DETAILS = {
+  52771: {
+    idMeal: "52771",
+    strMeal: "Spicy Arrabiata Penne",
+    strMealAlternate: null,
+    strCategory: "Vegetarian",
+    strArea: "Italian",
+    strInstructions:
+      "Bring a large pot of water to a boil. Add kosher salt to the boiling water, then add the pasta. Cook according to the package instructions, about 9 minutes.\r\nIn a large skillet over medium-high heat, add the olive oil and heat until the oil starts to shimmer. Add the garlic and cook, stirring, until fragrant, 1 to 2 minutes. Add the chopped tomatoes, red chile flakes, Italian seasoning and salt and pepper to taste. Bring to a boil and cook for 5 minutes. Remove from the heat and add the chopped basil.\r\nDrain the pasta and add it to the sauce. Garnish with Parmigiano-Reggiano flakes and more basil and serve warm.",
+    strMealThumb:
+      "https://www.themealdb.com/images/media/meals/ustsqw1468250014.jpg",
+    strTags: "Pasta,Curry",
+    strYoutube: "https://www.youtube.com/watch?v=1IszT_guI08",
+    strIngredient1: "penne rigate",
+    strIngredient2: "olive oil",
+    strIngredient3: "garlic",
+    strIngredient4: "chopped tomatoes",
+    strIngredient5: "red chilli flakes",
+    strIngredient6: "italian seasoning",
+    strIngredient7: "basil",
+    strIngredient8: "Parmigiano-Reggiano",
+    strIngredient9: "",
+    strIngredient10: "",
+    strIngredient11: "",
+    strIngredient12: "",
+    strIngredient13: "",
+    strIngredient14: "",
+    strIngredient15: "",
+    strIngredient16: null,
+    strIngredient17: null,
+    strIngredient18: null,
+    strIngredient19: null,
+    strIngredient20: null,
+    strMeasure1: "1 pound",
+    strMeasure2: "1/4 cup",
+    strMeasure3: "3 cloves",
+    strMeasure4: "1 tin ",
+    strMeasure5: "1/2 teaspoon",
+    strMeasure6: "1/2 teaspoon",
+    strMeasure7: "6 leaves",
+    strMeasure8: "sprinkling",
+    strMeasure9: "",
+    strMeasure10: "",
+    strMeasure11: "",
+    strMeasure12: "",
+    strMeasure13: "",
+    strMeasure14: "",
+    strMeasure15: "",
+    strMeasure16: null,
+    strMeasure17: null,
+    strMeasure18: null,
+    strMeasure19: null,
+    strMeasure20: null,
+    strSource: null,
+    strImageSource: null,
+    strCreativeCommonsConfirmed: null,
+    dateModified: null,
+  },
+
+  52772: {
+    idMeal: "52772",
+    strMeal: "Teriyaki Chicken Casserole",
+    strMealAlternate: null,
+    strCategory: "Chicken",
+    strArea: "Japanese",
+    strInstructions:
+      "Preheat oven to 350° F. Spray a 9x13-inch baking pan with non-stick spray.\r\nCombine soy sauce, ½ cup water, brown sugar, ginger and garlic in a small saucepan and cover. Bring to a boil over medium heat. Remove lid and cook for one minute once boiling.\r\nMeanwhile, stir together the corn starch and 2 tablespoons of water in a separate dish until smooth. Once sauce is boiling, add mixture to the saucepan and stir to combine. Cook until the sauce starts to thicken then remove from heat.\r\nPlace the chicken breasts in the prepared pan. Pour one cup of the sauce over top of chicken. Place chicken in oven and bake 35 minutes or until cooked through. Remove from oven and shred chicken in the dish using two forks.\r\n*Meanwhile, steam or cook the vegetables according to package directions.\r\nAdd the cooked vegetables and rice to the casserole dish with the chicken. Add most of the remaining sauce, reserving a bit to drizzle over the top when serving. Gently toss everything together in the casserole dish until combined. Return to oven and cook 15 minutes. Remove from oven and let stand 5 minutes before serving. Drizzle each serving with remaining sauce. Enjoy!",
+    strMealThumb:
+      "https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg",
+    strTags: "Meat,Casserole",
+    strYoutube: "https://www.youtube.com/watch?v=4aZr5hZXP_s",
+    strIngredient1: "soy sauce",
+    strIngredient2: "water",
+    strIngredient3: "brown sugar",
+    strIngredient4: "ground ginger",
+    strIngredient5: "minced garlic",
+    strIngredient6: "cornstarch",
+    strIngredient7: "chicken breasts",
+    strIngredient8: "stir-fry vegetables",
+    strIngredient9: "brown rice",
+    strIngredient10: "",
+    strIngredient11: "",
+    strIngredient12: "",
+    strIngredient13: "",
+    strIngredient14: "",
+    strIngredient15: "",
+    strIngredient16: null,
+    strIngredient17: null,
+    strIngredient18: null,
+    strIngredient19: null,
+    strIngredient20: null,
+    strMeasure1: "3/4 cup",
+    strMeasure2: "1/2 cup",
+    strMeasure3: "1/4 cup",
+    strMeasure4: "1/2 teaspoon",
+    strMeasure5: "1/2 teaspoon",
+    strMeasure6: "4 Tablespoons",
+    strMeasure7: "2",
+    strMeasure8: "1 (12 oz.)",
+    strMeasure9: "3 cups",
+    strMeasure10: "",
+    strMeasure11: "",
+    strMeasure12: "",
+    strMeasure13: "",
+    strMeasure14: "",
+    strMeasure15: "",
+    strMeasure16: null,
+    strMeasure17: null,
+    strMeasure18: null,
+    strMeasure19: null,
+    strMeasure20: null,
+    strSource: null,
+    strImageSource: null,
+    strCreativeCommonsConfirmed: null,
+    dateModified: null,
+  },
+};
+
+// NEW: render detailed recipe into the #detail container
+function renderDetail(detail) {
+  const detailDiv = document.getElementById("detail");
+  detailDiv.innerHTML = ""; // Clear previous detail
+
+  // Title
+  const title = document.createElement("h2");
+  title.className = "detail-title";
+  title.textContent = detail.strMeal;
+  detailDiv.appendChild(title);
+
+  // Image
+  const img = document.createElement("img");
+  img.className = "detail-img";
+  img.src = detail.strMealThumb;
+  img.alt = detail.strMeal;
+  detailDiv.appendChild(img);
+
+  // Ingredients list
+  const ingHeading = document.createElement("h3");
+  ingHeading.textContent = "Ingredients";
+  detailDiv.appendChild(ingHeading);
+
+  const ul = document.createElement("ul");
+  ul.className = "ingredients";
+  const ingredientList = getIngredients(detail);
+  ingredientList.forEach((it) => {
+    const li = document.createElement("li");
+    li.textContent = it;
+    ul.appendChild(li);
+  });
+  detailDiv.appendChild(ul);
+
+  // Instructions
+  const instrHeading = document.createElement("h3");
+  instrHeading.textContent = "Instructions";
+  detailDiv.appendChild(instrHeading);
+
+  const p = document.createElement("p");
+  p.className = "instructions";
+  p.textContent = detail.strInstructions;
+  detailDiv.appendChild(p);
+}
+
 // When the user selects an area, fetch and display meals for that area
-document.getElementById("area-select").addEventListener("change", function () {
-  const area = this.value;
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML = ""; // Clear previous results
+document
+  .getElementById("area-select")
+  .addEventListener("change", async function () {
+    const area = this.value;
+    const resultsDiv = document.getElementById("results");
+    const detailDiv = document.getElementById("detail");
+    resultsDiv.innerHTML = ""; // Clear previous results
+    detailDiv.innerHTML = ""; // Clear previous detail when changing area
 
-  if (!area) return;
+    if (!area) return;
 
-  fetch(
-    `https://www.themealdb.com/api/json/v1/1/filter.php?a=${encodeURIComponent(
-      area
-    )}`
-  )
-    .then((response) => response.json())
-    .then((data) => {
+    try {
+      // Fetch meals for the selected area
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/filter.php?a=${encodeURIComponent(
+          area
+        )}`
+      );
+      const data = await response.json();
+
       if (data.meals) {
         data.meals.forEach((meal) => {
+          // Create a card for each meal
           const mealDiv = document.createElement("div");
           mealDiv.className = "meal";
+          // Store the meal id so we can fetch details later
+          mealDiv.dataset.mealId = meal.idMeal;
 
           const title = document.createElement("h3");
           title.textContent = meal.strMeal;
@@ -47,9 +261,65 @@ document.getElementById("area-select").addEventListener("change", function () {
           mealDiv.appendChild(title);
           mealDiv.appendChild(img);
           resultsDiv.appendChild(mealDiv);
+
+          // Remove per-card MOCK_DETAIL_RESPONSE and use top-level MOCK_DETAILS
+          mealDiv.addEventListener("click", async () => {
+            try {
+              // Fetch detailed meal info by id
+              const detailResp = await fetch(
+                `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`
+              );
+              const detailData = await detailResp.json();
+
+              // If API returns no detailed meals, fall back to mock by id
+              if (
+                !detailData ||
+                !detailData.meals ||
+                detailData.meals.length === 0
+              ) {
+                const mock = MOCK_DETAILS[meal.idMeal];
+                if (mock) {
+                  console.warn(
+                    `API returned no detail; using mock detail for id ${meal.idMeal}.`
+                  );
+                  console.log("Detailed meal info (mock):", mock);
+                  renderDetail(mock);
+                  return;
+                } else {
+                  console.error(
+                    "API returned no detail and no mock available for id",
+                    meal.idMeal
+                  );
+                  return;
+                }
+              }
+
+              // Log and render real detail
+              console.log("Detailed meal info:", detailData.meals[0]);
+              renderDetail(detailData.meals[0]);
+            } catch (err) {
+              // On network error, try mock by id
+              const mock = MOCK_DETAILS[meal.idMeal];
+              if (mock) {
+                console.error(
+                  "Error fetching meal details; using mock data. Error:",
+                  err
+                );
+                console.log("Detailed meal info (mock):", mock);
+                renderDetail(mock);
+              } else {
+                console.error(
+                  "Error fetching meal details and no mock available:",
+                  err
+                );
+              }
+            }
+          });
         });
       } else {
         resultsDiv.textContent = "No meals found for this area.";
       }
-    });
-});
+    } catch (error) {
+      console.error("Error fetching meals:", error);
+    }
+  });

@@ -1,19 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Search</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1>API Search</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meals Around the Globe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Meals Ideas in the Creative Cloud</h1>
+    <!-- Short friendly subtitle to invite users -->
+    <p class="intro">
+      Discover recipes by cuisine or category — click a card to see ingredients
+      and steps.
+    </p>
 
-  <select name="area-select" id="area-select">
-    <option value="">Select Area</option>
-  </select>
+    <!-- Grouped controls for nicer layout -->
+    <div class="controls">
+      <select name="area-select" id="area-select">
+        <option value="">Select Area</option>
+      </select>
 
-  <div id="results"></div>
-  <script src="script.js"></script>
-</body>
+      <!-- New category select for recipe categories -->
+      <select name="category-select" id="category-select">
+        <option value="">Select Category</option>
+      </select>
+    </div>
+
+    <div id="results"></div>
+
+    <!-- Container where detailed recipe information will be rendered -->
+    <div id="detail"></div>
+
+    <script src="script.js"></script>
+  </body>
 </html>

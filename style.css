@@ -1,62 +1,148 @@
+/* Warmer, food-friendly background and subtle texture */
 body {
+  /* warm cream to soft peach gradient */
+  background: linear-gradient(135deg, #fff7f0 0%, #fffaf7 45%, #f7fbf9 100%);
+  color: #2b2b2b;
+  /* existing font-family preserved */
   font-family: Arial, sans-serif;
-  background: #f8f9fa;
-  margin: 0;
-  padding: 0;
 }
 
+/* Friendlier page title */
 h1 {
   text-align: center;
-  margin-top: 24px;
-  color: #333;
+  margin-top: 28px;
+  color: #b33a2b; /* warm tomato tone */
+  font-size: 2rem;
+  letter-spacing: 0.4px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-#area-select {
-  display: block;
-  margin: 24px auto 32px auto;
-  padding: 8px 16px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+/* Subtitle under the title */
+.intro {
+  text-align: center;
+  margin: 8px auto 18px auto;
+  max-width: 700px;
+  color: #5a5a5a;
+  font-size: 0.95rem;
 }
 
-#results {
+/* Layout container for selects to appear side-by-side on larger screens */
+.controls {
   display: flex;
-  flex-wrap: wrap;
+  gap: 12px;
   justify-content: center;
-  gap: 24px;
-  padding: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 0 12px;
 }
 
+/* Style both selects (area and category) consistently */
+#area-select,
+#category-select {
+  padding: 10px 14px;
+  font-size: 1rem;
+  border-radius: 999px; /* pill shape */
+  border: 1px solid rgba(179, 58, 43, 0.15);
+  background: linear-gradient(180deg, #fff, #fff7f5);
+  box-shadow: 0 6px 14px rgba(179, 58, 43, 0.03);
+  color: #333;
+  min-width: 180px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* Slight lift effect when focusing or hovering on selects */
+#area-select:focus,
+#category-select:focus,
+#area-select:hover,
+#category-select:hover {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(179, 58, 43, 0.06);
+}
+
+/* Meal card accent and lift for a more appetizing look */
 .meal {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  background: linear-gradient(180deg, #fff, #fffaf9);
+  border-radius: 12px;
+  border-top: 6px solid rgba(179, 58, 43, 0.12); /* warm accent line */
+  box-shadow: 0 8px 20px rgba(43, 43, 43, 0.06);
   padding: 16px;
   width: 220px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: box-shadow 0.2s;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .meal:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-  cursor: pointer;
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 14px 36px rgba(43, 43, 43, 0.12);
 }
 
+/* Image pop with subtle shadow and rounded corners */
 .meal img {
   width: 180px;
   height: 120px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.meal h3 {
-  font-size: 1.1rem;
-  margin: 0;
-  color: #222;
+.meal img:hover {
+  transform: scale(1.03);
+  filter: saturate(1.05);
+}
+
+/* Make detail panel colors match overall palette */
+#detail {
+  max-width: 900px;
+  margin: 24px auto;
+  background: linear-gradient(180deg, #fff, #fff7f6);
+  padding: 22px;
+  border-radius: 12px;
+  border-left: 6px solid rgba(179, 58, 43, 0.12);
+  box-shadow: 0 10px 30px rgba(43, 43, 43, 0.06);
+}
+
+/* A small tweak to headings inside detail */
+.detail-title {
+  margin: 0 0 10px 0;
+  color: #8d2f24;
   text-align: center;
-  word-break: break-word;
+  font-size: 1.6rem;
+}
+
+/* Ingredients list styling to feel homely */
+.ingredients {
+  list-style: disc;
+  padding-left: 20px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* Preserve instruction line breaks and improve readability */
+.instructions {
+  white-space: pre-wrap; /* preserve line breaks from API */
+  line-height: 1.6;
+  color: #444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .controls {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 16px;
+  }
+
+  .meal {
+    width: 92%;
+  }
+
+  .detail-img {
+    max-width: 100%;
+  }
 }
