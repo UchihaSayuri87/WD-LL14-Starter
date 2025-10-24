@@ -241,3 +241,77 @@ h1 {
     max-width: 520px;
   }
 }
+
+/* Print-friendly styles */
+@media print {
+  /* hide interactive UI and decorative elements */
+  .controls,
+  .intro,
+  .logo-emoji,
+  h1,
+  select,
+  .category-badge {
+    display: none !important;
+  }
+
+  /* plain background and dark text for printing */
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* make grids single column and full width */
+  #results {
+    display: block !important;
+    padding: 0 !important;
+  }
+  .meal-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+    max-width: 100% !important;
+    gap: 8px !important;
+  }
+
+  /* make meal cards take full width and remove visual chrome */
+  .meal {
+    width: 100% !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 6px !important;
+    page-break-inside: avoid;
+  }
+
+  .meal img,
+  .detail-img {
+    max-width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
+  }
+
+  /* make detail panel print well */
+  #detail {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 12px 0 !important;
+    page-break-inside: avoid;
+  }
+
+  /* avoid breaking list items across pages */
+  .ingredients,
+  .instructions {
+    page-break-inside: avoid;
+  }
+
+  /* ensure readable font sizes for print */
+  body,
+  h2,
+  h3,
+  p,
+  li {
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+  }
+}

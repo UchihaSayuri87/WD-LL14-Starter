@@ -281,72 +281,86 @@ function renderMeals(meals) {
   });
 }
 
-// When the user selects an area, fetch and display meals for that area
-document
-  .getElementById("area-select")
-  .addEventListener("change", async function () {
-    const area = this.value;
-    // If user selects an area, clear category select to avoid ambiguity
-    const catSelect = document.getElementById("category-select");
-    if (catSelect) catSelect.value = "";
+// NEW: combined fetch + render to support area OR category OR both
+async function fetchAndRender(area, category) {
+  const resultsDiv = document.getElementById("results");
+  const detailDiv = document.getElementById("detail");
+  resultsDiv.innerHTML = ""; // Clear previous results
+  detailDiv.innerHTML = ""; // Clear previous detail
 
-    const resultsDiv = document.getElementById("results");
-    const detailDiv = document.getElementById("detail");
-    resultsDiv.innerHTML = ""; // Clear previous results
-    detailDiv.innerHTML = ""; // Clear previous detail when changing area
+  // If nothing selected, do nothing
+  if (!area && !category) return;
 
-    if (!area) return;
+  try {
+    if (area && category) {
+      // Fetch both lists in parallel and compute intersection by idMeal
+      const [areaResp, catResp] = await Promise.all([
+        fetch(
+          `https://www.themealdb.com/api/json/v1/1/filter.php?a=${encodeURIComponent(
+            area
+          )}`
+        ),
+        fetch(
+          `https://www.themealdb.com/api/json/v1/1/filter.php?c=${encodeURIComponent(
+            category
+          )}`
+        ),
+      ]);
+      const [areaData, catData] = await Promise.all([
+        areaResp.json(),
+        catResp.json(),
+      ]);
+      const areaMeals = areaData.meals || [];
+      const catMeals = catData.meals || [];
+      const areaIds = new Set(areaMeals.map((m) => m.idMeal));
+      const intersect = catMeals.filter((m) => areaIds.has(m.idMeal));
 
-    try {
-      // Fetch meals for the selected area
-      const response = await fetch(
+      if (intersect.length) {
+        renderMeals(intersect);
+      } else {
+        resultsDiv.textContent =
+          "No meals found for this area + category combination.";
+      }
+    } else if (area) {
+      // Only area selected
+      const resp = await fetch(
         `https://www.themealdb.com/api/json/v1/1/filter.php?a=${encodeURIComponent(
           area
         )}`
       );
-      const data = await response.json();
-
-      if (data.meals) {
-        renderMeals(data.meals);
-      } else {
-        resultsDiv.textContent = "No meals found for this area.";
-      }
-    } catch (error) {
-      console.error("Error fetching meals:", error);
-    }
-  });
-
-// NEW: When the user selects a category, fetch and display meals for that category
-document
-  .getElementById("category-select")
-  .addEventListener("change", async function () {
-    const category = this.value;
-    // Clear area select to avoid ambiguous filtering
-    const areaSelect = document.getElementById("area-select");
-    if (areaSelect) areaSelect.value = "";
-
-    const resultsDiv = document.getElementById("results");
-    const detailDiv = document.getElementById("detail");
-    resultsDiv.innerHTML = ""; // Clear previous results
-    detailDiv.innerHTML = ""; // Clear previous detail when changing category
-
-    if (!category) return;
-
-    try {
-      // Fetch meals for the selected category
-      const response = await fetch(
+      const data = await resp.json();
+      if (data.meals) renderMeals(data.meals);
+      else resultsDiv.textContent = "No meals found for this area.";
+    } else {
+      // Only category selected
+      const resp = await fetch(
         `https://www.themealdb.com/api/json/v1/1/filter.php?c=${encodeURIComponent(
           category
         )}`
       );
-      const data = await response.json();
-
-      if (data.meals) {
-        renderMeals(data.meals);
-      } else {
-        resultsDiv.textContent = "No meals found for this category.";
-      }
-    } catch (error) {
-      console.error("Error fetching meals by category:", error);
+      const data = await resp.json();
+      if (data.meals) renderMeals(data.meals);
+      else resultsDiv.textContent = "No meals found for this category.";
     }
+  } catch (err) {
+    console.error("Error fetching meals:", err);
+    resultsDiv.textContent = "Error fetching meals. See console for details.";
+  }
+}
+
+// Replace separate change handlers with calls to fetchAndRender
+document.getElementById("area-select").addEventListener("change", function () {
+  const area = this.value;
+  const category = document.getElementById("category-select").value;
+  // do not clear category — allow combined filtering
+  fetchAndRender(area, category);
+});
+
+document
+  .getElementById("category-select")
+  .addEventListener("change", function () {
+    const category = this.value;
+    const area = document.getElementById("area-select").value;
+    // do not clear area — allow combined filtering
+    fetchAndRender(area, category);
   });
