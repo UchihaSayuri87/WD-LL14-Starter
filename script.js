@@ -222,6 +222,15 @@ function renderDetail(detail) {
   detailDiv.appendChild(p);
 }
 
+// Helper to split an array into chunks of given size
+function chunkArray(arr, size) {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+}
+
 // When the user selects an area, fetch and display meals for that area
 document
   .getElementById("area-select")
@@ -244,77 +253,79 @@ document
       const data = await response.json();
 
       if (data.meals) {
-        data.meals.forEach((meal) => {
-          // Create a card for each meal
-          const mealDiv = document.createElement("div");
-          mealDiv.className = "meal";
-          // Store the meal id so we can fetch details later
-          mealDiv.dataset.mealId = meal.idMeal;
+        // Chunk into groups of 9 so each .meal-grid contains up to 9 cards (3x3)
+        const chunks = chunkArray(data.meals, 9);
+        chunks.forEach((chunk) => {
+          const gridDiv = document.createElement("div");
+          gridDiv.className = "meal-grid";
+          // create cards for this chunk
+          chunk.forEach((meal) => {
+            const mealDiv = document.createElement("div");
+            mealDiv.className = "meal";
+            mealDiv.dataset.mealId = meal.idMeal;
 
-          const title = document.createElement("h3");
-          title.textContent = meal.strMeal;
+            const title = document.createElement("h3");
+            title.textContent = meal.strMeal;
 
-          const img = document.createElement("img");
-          img.src = meal.strMealThumb;
-          img.alt = meal.strMeal;
+            const img = document.createElement("img");
+            img.src = meal.strMealThumb;
+            img.alt = meal.strMeal;
 
-          mealDiv.appendChild(title);
-          mealDiv.appendChild(img);
-          resultsDiv.appendChild(mealDiv);
+            mealDiv.appendChild(title);
+            mealDiv.appendChild(img);
+            gridDiv.appendChild(mealDiv);
 
-          // Remove per-card MOCK_DETAIL_RESPONSE and use top-level MOCK_DETAILS
-          mealDiv.addEventListener("click", async () => {
-            try {
-              // Fetch detailed meal info by id
-              const detailResp = await fetch(
-                `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`
-              );
-              const detailData = await detailResp.json();
+            // click handler (same fallback logic)
+            mealDiv.addEventListener("click", async () => {
+              try {
+                const detailResp = await fetch(
+                  `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`
+                );
+                const detailData = await detailResp.json();
 
-              // If API returns no detailed meals, fall back to mock by id
-              if (
-                !detailData ||
-                !detailData.meals ||
-                detailData.meals.length === 0
-              ) {
+                if (
+                  !detailData ||
+                  !detailData.meals ||
+                  detailData.meals.length === 0
+                ) {
+                  const mock = MOCK_DETAILS[meal.idMeal];
+                  if (mock) {
+                    console.warn(
+                      `API returned no detail; using mock detail for id ${meal.idMeal}.`
+                    );
+                    console.log("Detailed meal info (mock):", mock);
+                    renderDetail(mock);
+                    return;
+                  } else {
+                    console.error(
+                      "API returned no detail and no mock available for id",
+                      meal.idMeal
+                    );
+                    return;
+                  }
+                }
+
+                console.log("Detailed meal info:", detailData.meals[0]);
+                renderDetail(detailData.meals[0]);
+              } catch (err) {
                 const mock = MOCK_DETAILS[meal.idMeal];
                 if (mock) {
-                  console.warn(
-                    `API returned no detail; using mock detail for id ${meal.idMeal}.`
+                  console.error(
+                    "Error fetching meal details; using mock data. Error:",
+                    err
                   );
                   console.log("Detailed meal info (mock):", mock);
                   renderDetail(mock);
-                  return;
                 } else {
                   console.error(
-                    "API returned no detail and no mock available for id",
-                    meal.idMeal
+                    "Error fetching meal details and no mock available:",
+                    err
                   );
-                  return;
                 }
               }
-
-              // Log and render real detail
-              console.log("Detailed meal info:", detailData.meals[0]);
-              renderDetail(detailData.meals[0]);
-            } catch (err) {
-              // On network error, try mock by id
-              const mock = MOCK_DETAILS[meal.idMeal];
-              if (mock) {
-                console.error(
-                  "Error fetching meal details; using mock data. Error:",
-                  err
-                );
-                console.log("Detailed meal info (mock):", mock);
-                renderDetail(mock);
-              } else {
-                console.error(
-                  "Error fetching meal details and no mock available:",
-                  err
-                );
-              }
-            }
+            });
           });
+          resultsDiv.appendChild(gridDiv);
         });
       } else {
         resultsDiv.textContent = "No meals found for this area.";
