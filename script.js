@@ -83,16 +83,6 @@ const MOCK_DETAILS = {
     strIngredient8: "Parmigiano-Reggiano",
     strIngredient9: "",
     strIngredient10: "",
-    strIngredient11: "",
-    strIngredient12: "",
-    strIngredient13: "",
-    strIngredient14: "",
-    strIngredient15: "",
-    strIngredient16: null,
-    strIngredient17: null,
-    strIngredient18: null,
-    strIngredient19: null,
-    strIngredient20: null,
     strMeasure1: "1 pound",
     strMeasure2: "1/4 cup",
     strMeasure3: "3 cloves",
@@ -101,22 +91,6 @@ const MOCK_DETAILS = {
     strMeasure6: "1/2 teaspoon",
     strMeasure7: "6 leaves",
     strMeasure8: "sprinkling",
-    strMeasure9: "",
-    strMeasure10: "",
-    strMeasure11: "",
-    strMeasure12: "",
-    strMeasure13: "",
-    strMeasure14: "",
-    strMeasure15: "",
-    strMeasure16: null,
-    strMeasure17: null,
-    strMeasure18: null,
-    strMeasure19: null,
-    strMeasure20: null,
-    strSource: null,
-    strImageSource: null,
-    strCreativeCommonsConfirmed: null,
-    dateModified: null,
   },
 
   52772: {
@@ -140,17 +114,6 @@ const MOCK_DETAILS = {
     strIngredient7: "chicken breasts",
     strIngredient8: "stir-fry vegetables",
     strIngredient9: "brown rice",
-    strIngredient10: "",
-    strIngredient11: "",
-    strIngredient12: "",
-    strIngredient13: "",
-    strIngredient14: "",
-    strIngredient15: "",
-    strIngredient16: null,
-    strIngredient17: null,
-    strIngredient18: null,
-    strIngredient19: null,
-    strIngredient20: null,
     strMeasure1: "3/4 cup",
     strMeasure2: "1/2 cup",
     strMeasure3: "1/4 cup",
@@ -160,21 +123,6 @@ const MOCK_DETAILS = {
     strMeasure7: "2",
     strMeasure8: "1 (12 oz.)",
     strMeasure9: "3 cups",
-    strMeasure10: "",
-    strMeasure11: "",
-    strMeasure12: "",
-    strMeasure13: "",
-    strMeasure14: "",
-    strMeasure15: "",
-    strMeasure16: null,
-    strMeasure17: null,
-    strMeasure18: null,
-    strMeasure19: null,
-    strMeasure20: null,
-    strSource: null,
-    strImageSource: null,
-    strCreativeCommonsConfirmed: null,
-    dateModified: null,
   },
 };
 
@@ -231,11 +179,128 @@ function chunkArray(arr, size) {
   return chunks;
 }
 
+// Helper to render meals array (used for both area and category)
+function renderMeals(meals) {
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = ""; // clear previous
+
+  // Chunk into groups of 9 so each .meal-grid contains up to 9 cards (3x3)
+  const chunks = chunkArray(meals, 9);
+  chunks.forEach((chunk) => {
+    const gridDiv = document.createElement("div");
+    gridDiv.className = "meal-grid";
+
+    chunk.forEach((meal) => {
+      const mealDiv = document.createElement("div");
+      mealDiv.className = "meal";
+      mealDiv.dataset.mealId = meal.idMeal;
+      mealDiv.style.position = "relative"; // for badge positioning
+
+      const title = document.createElement("h3");
+      title.textContent = meal.strMeal;
+
+      const img = document.createElement("img");
+      img.src = meal.strMealThumb;
+      img.alt = meal.strMeal;
+
+      // Badge element for category (will be filled asynchronously)
+      const badge = document.createElement("span");
+      badge.className = "category-badge";
+      badge.textContent = ""; // initially empty
+      badge.setAttribute("aria-hidden", "true");
+
+      mealDiv.appendChild(badge);
+      mealDiv.appendChild(title);
+      mealDiv.appendChild(img);
+      gridDiv.appendChild(mealDiv);
+
+      // Fetch detailed info to populate the badge (non-blocking)
+      (async function populateBadge(id, badgeEl) {
+        try {
+          const resp = await fetch(
+            `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
+          );
+          const detail = await resp.json();
+          if (detail && detail.meals && detail.meals[0]) {
+            const cat = detail.meals[0].strCategory;
+            if (cat) badgeEl.textContent = cat;
+            else badgeEl.textContent = "";
+          } else {
+            // fallback to mock if available
+            const mock = MOCK_DETAILS[id];
+            if (mock && mock.strCategory)
+              badgeEl.textContent = mock.strCategory;
+          }
+        } catch (err) {
+          const mock = MOCK_DETAILS[id];
+          if (mock && mock.strCategory) badgeEl.textContent = mock.strCategory;
+        }
+      })(meal.idMeal, badge);
+
+      // click handler (fetch detail, fallback to MOCK_DETAILS, render + console.log)
+      mealDiv.addEventListener("click", async () => {
+        try {
+          const detailResp = await fetch(
+            `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`
+          );
+          const detailData = await detailResp.json();
+
+          if (
+            !detailData ||
+            !detailData.meals ||
+            detailData.meals.length === 0
+          ) {
+            const mock = MOCK_DETAILS[meal.idMeal];
+            if (mock) {
+              console.warn(
+                `API returned no detail; using mock detail for id ${meal.idMeal}.`
+              );
+              console.log("Detailed meal info (mock):", mock);
+              renderDetail(mock);
+              return;
+            } else {
+              console.error(
+                "API returned no detail and no mock available for id",
+                meal.idMeal
+              );
+              return;
+            }
+          }
+
+          console.log("Detailed meal info:", detailData.meals[0]);
+          renderDetail(detailData.meals[0]);
+        } catch (err) {
+          const mock = MOCK_DETAILS[meal.idMeal];
+          if (mock) {
+            console.error(
+              "Error fetching meal details; using mock data. Error:",
+              err
+            );
+            console.log("Detailed meal info (mock):", mock);
+            renderDetail(mock);
+          } else {
+            console.error(
+              "Error fetching meal details and no mock available:",
+              err
+            );
+          }
+        }
+      });
+    });
+
+    resultsDiv.appendChild(gridDiv);
+  });
+}
+
 // When the user selects an area, fetch and display meals for that area
 document
   .getElementById("area-select")
   .addEventListener("change", async function () {
     const area = this.value;
+    // If user selects an area, clear category select to avoid ambiguity
+    const catSelect = document.getElementById("category-select");
+    if (catSelect) catSelect.value = "";
+
     const resultsDiv = document.getElementById("results");
     const detailDiv = document.getElementById("detail");
     resultsDiv.innerHTML = ""; // Clear previous results
@@ -253,84 +318,46 @@ document
       const data = await response.json();
 
       if (data.meals) {
-        // Chunk into groups of 9 so each .meal-grid contains up to 9 cards (3x3)
-        const chunks = chunkArray(data.meals, 9);
-        chunks.forEach((chunk) => {
-          const gridDiv = document.createElement("div");
-          gridDiv.className = "meal-grid";
-          // create cards for this chunk
-          chunk.forEach((meal) => {
-            const mealDiv = document.createElement("div");
-            mealDiv.className = "meal";
-            mealDiv.dataset.mealId = meal.idMeal;
-
-            const title = document.createElement("h3");
-            title.textContent = meal.strMeal;
-
-            const img = document.createElement("img");
-            img.src = meal.strMealThumb;
-            img.alt = meal.strMeal;
-
-            mealDiv.appendChild(title);
-            mealDiv.appendChild(img);
-            gridDiv.appendChild(mealDiv);
-
-            // click handler (same fallback logic)
-            mealDiv.addEventListener("click", async () => {
-              try {
-                const detailResp = await fetch(
-                  `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`
-                );
-                const detailData = await detailResp.json();
-
-                if (
-                  !detailData ||
-                  !detailData.meals ||
-                  detailData.meals.length === 0
-                ) {
-                  const mock = MOCK_DETAILS[meal.idMeal];
-                  if (mock) {
-                    console.warn(
-                      `API returned no detail; using mock detail for id ${meal.idMeal}.`
-                    );
-                    console.log("Detailed meal info (mock):", mock);
-                    renderDetail(mock);
-                    return;
-                  } else {
-                    console.error(
-                      "API returned no detail and no mock available for id",
-                      meal.idMeal
-                    );
-                    return;
-                  }
-                }
-
-                console.log("Detailed meal info:", detailData.meals[0]);
-                renderDetail(detailData.meals[0]);
-              } catch (err) {
-                const mock = MOCK_DETAILS[meal.idMeal];
-                if (mock) {
-                  console.error(
-                    "Error fetching meal details; using mock data. Error:",
-                    err
-                  );
-                  console.log("Detailed meal info (mock):", mock);
-                  renderDetail(mock);
-                } else {
-                  console.error(
-                    "Error fetching meal details and no mock available:",
-                    err
-                  );
-                }
-              }
-            });
-          });
-          resultsDiv.appendChild(gridDiv);
-        });
+        renderMeals(data.meals);
       } else {
         resultsDiv.textContent = "No meals found for this area.";
       }
     } catch (error) {
       console.error("Error fetching meals:", error);
+    }
+  });
+
+// NEW: When the user selects a category, fetch and display meals for that category
+document
+  .getElementById("category-select")
+  .addEventListener("change", async function () {
+    const category = this.value;
+    // Clear area select to avoid ambiguous filtering
+    const areaSelect = document.getElementById("area-select");
+    if (areaSelect) areaSelect.value = "";
+
+    const resultsDiv = document.getElementById("results");
+    const detailDiv = document.getElementById("detail");
+    resultsDiv.innerHTML = ""; // Clear previous results
+    detailDiv.innerHTML = ""; // Clear previous detail when changing category
+
+    if (!category) return;
+
+    try {
+      // Fetch meals for the selected category
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/filter.php?c=${encodeURIComponent(
+          category
+        )}`
+      );
+      const data = await response.json();
+
+      if (data.meals) {
+        renderMeals(data.meals);
+      } else {
+        resultsDiv.textContent = "No meals found for this category.";
+      }
+    } catch (error) {
+      console.error("Error fetching meals by category:", error);
     }
   });

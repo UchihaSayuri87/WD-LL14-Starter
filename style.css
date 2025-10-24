@@ -1,20 +1,68 @@
-/* Warmer, food-friendly background and subtle texture */
+/* Theme variables for consistent accents */
+:root {
+  --accent-warm: #b33a2b;
+  --accent-soft: rgba(179, 58, 43, 0.12);
+  --bg-cream: #fff7f0;
+  --muted: #5a5a5a;
+}
+
+/* Use the new friendly font and keep a fallback */
 body {
-  /* warm cream to soft peach gradient */
-  background: linear-gradient(135deg, #fff7f0 0%, #fffaf7 45%, #f7fbf9 100%);
+  font-family: "Poppins", Arial, sans-serif;
+  /* keep existing background but add a subtle decorative overlay */
+  background: linear-gradient(
+    135deg,
+    var(--bg-cream) 0%,
+    #fffaf7 45%,
+    #f7fbf9 100%
+  );
+  position: relative;
   color: #2b2b2b;
-  /* existing font-family preserved */
-  font-family: Arial, sans-serif;
+}
+
+/* soft decorative circles via pseudo element to feel warm and organic */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      circle at 10% 10%,
+      rgba(179, 58, 43, 0.03) 0,
+      transparent 20%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(255, 200, 150, 0.03) 0,
+      transparent 18%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ensure page content sits above the pseudo background */
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Friendlier page title */
 h1 {
   text-align: center;
   margin-top: 28px;
-  color: #b33a2b; /* warm tomato tone */
-  font-size: 2rem;
+  color: var(--accent-warm);
+  font-size: 2.1rem; /* slightly larger for emphasis */
   letter-spacing: 0.4px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* emoji logo sizing and subtle lift */
+.logo-emoji {
+  font-size: 1.4rem;
+  display: inline-block;
+  transform: translateY(-2px);
 }
 
 /* Subtitle under the title */
@@ -22,8 +70,8 @@ h1 {
   text-align: center;
   margin: 8px auto 18px auto;
   max-width: 700px;
-  color: #5a5a5a;
-  font-size: 0.95rem;
+  color: var(--muted);
+  font-size: 0.98rem;
 }
 
 /* Layout container for selects to appear side-by-side on larger screens */
@@ -33,7 +81,10 @@ h1 {
   justify-content: center;
   align-items: center;
   margin-bottom: 18px;
-  padding: 0 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 6px 18px rgba(43, 43, 43, 0.04);
 }
 
 /* Style both selects (area and category) consistently */
@@ -72,11 +123,27 @@ h1 {
   flex-direction: column;
   align-items: center;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
+  position: relative; /* allow badge positioning */
 }
 
 .meal:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 14px 36px rgba(43, 43, 43, 0.12);
+}
+
+/* small category badge/pill in the top-right of the card */
+.category-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--accent-warm);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  box-shadow: 0 6px 14px rgba(179, 58, 43, 0.12);
+  white-space: nowrap;
+  opacity: 0.95;
 }
 
 /* Image pop with subtle shadow and rounded corners */
@@ -102,7 +169,7 @@ h1 {
   background: linear-gradient(180deg, #fff, #fff7f6);
   padding: 22px;
   border-radius: 12px;
-  border-left: 6px solid rgba(179, 58, 43, 0.12);
+  border-left: 6px solid var(--accent-soft);
   box-shadow: 0 10px 30px rgba(43, 43, 43, 0.06);
 }
 

@@ -3,11 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#fff7f0" />
+    <!-- Friendly, readable web font for a warm UI -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
     <title>Meals Around the Globe</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h1>Meals Ideas in the Creative Cloud</h1>
+    <h1>
+      <span class="logo-emoji" aria-hidden="true">🍽️</span> Meals Ideas in the
+      Creative Cloud
+    </h1>
+
     <!-- Short friendly subtitle to invite users -->
     <p class="intro">
       Discover recipes by cuisine or category — click a card to see ingredients
@@ -20,7 +31,6 @@
         <option value="">Select Area</option>
       </select>
 
-      <!-- New category select for recipe categories -->
       <select name="category-select" id="category-select">
         <option value="">Select Category</option>
       </select>
