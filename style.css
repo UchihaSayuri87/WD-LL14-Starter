@@ -9,7 +9,6 @@
 /* Use the new friendly font and keep a fallback */
 body {
   font-family: "Poppins", Arial, sans-serif;
-  /* keep existing background but add a subtle decorative overlay */
   background: linear-gradient(
     135deg,
     var(--bg-cream) 0%,
@@ -18,6 +17,8 @@ body {
   );
   position: relative;
   color: #2b2b2b;
+  margin: 0;
+  padding: 0;
 }
 
 /* soft decorative circles via pseudo element to feel warm and organic */
@@ -50,7 +51,7 @@ h1 {
   text-align: center;
   margin-top: 28px;
   color: var(--accent-warm);
-  font-size: 2.1rem; /* slightly larger for emphasis */
+  font-size: 2.1rem;
   letter-spacing: 0.4px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
   display: inline-flex;
@@ -92,7 +93,7 @@ h1 {
 #category-select {
   padding: 10px 14px;
   font-size: 1rem;
-  border-radius: 999px; /* pill shape */
+  border-radius: 999px;
   border: 1px solid rgba(179, 58, 43, 0.15);
   background: linear-gradient(180deg, #fff, #fff7f5);
   box-shadow: 0 6px 14px rgba(179, 58, 43, 0.03);
@@ -115,7 +116,7 @@ h1 {
 .meal {
   background: linear-gradient(180deg, #fff, #fffaf9);
   border-radius: 12px;
-  border-top: 6px solid rgba(179, 58, 43, 0.12); /* warm accent line */
+  border-top: 6px solid rgba(179, 58, 43, 0.12);
   box-shadow: 0 8px 20px rgba(43, 43, 43, 0.06);
   padding: 16px;
   width: 220px;
@@ -192,7 +193,7 @@ h1 {
 
 /* Preserve instruction line breaks and improve readability */
 .instructions {
-  white-space: pre-wrap; /* preserve line breaks from API */
+  white-space: pre-wrap;
   line-height: 1.6;
   color: #444;
 }
@@ -226,14 +227,11 @@ h1 {
 /* Each meal-grid is a 3x3 layout (3 columns, up to 3 rows) */
 .meal-grid {
   display: grid;
-  grid-template-columns: repeat(
-    3,
-    220px
-  ); /* three columns matching .meal width */
+  grid-template-columns: repeat(3, 220px);
   gap: 24px;
   justify-content: center;
   width: 100%;
-  max-width: 740px; /* 3 * 220 + gaps approx */
+  max-width: 740px;
 }
 
 /* Responsive: on smaller screens, make grid single column */
