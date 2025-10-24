@@ -61,7 +61,7 @@ function getIngredients(detail) {
 
 // NEW: Mock detailed meal data keyed by id for offline/fallback use
 const MOCK_DETAILS = {
-  "52771": {
+  52771: {
     idMeal: "52771",
     strMeal: "Spicy Arrabiata Penne",
     strCategory: "Vegetarian",
@@ -86,7 +86,7 @@ const MOCK_DETAILS = {
     strMeasure7: "6 leaves",
   },
 
-  "52772": {
+  52772: {
     idMeal: "52772",
     strMeal: "Teriyaki Chicken Casserole",
     strCategory: "Chicken",
